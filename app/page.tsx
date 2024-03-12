@@ -1,6 +1,6 @@
 "use client";
 
-import SignIn from "@/components/SignIn";
+import SignIn from "@/components/SignIn/SignIn";
 import { useAuth } from "@/lib/store/auth-context";
 
 export default function Home() {
