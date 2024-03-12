@@ -8,6 +8,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { AddExpensesModal, AddIncomeModal } from "@/components/modal";
 import ExpenseCategoryItem from "@/components/items/ExpenseCategoryItem";
+import Navbar from "@/components/navbar/Navbar";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function Home() {
@@ -41,6 +42,7 @@ export default function Home() {
 
   return (
     <>
+    <Navbar/>
       <AddIncomeModal show={showAddIncomeModal} onClose={handleCloseIncome} />
 
       <AddExpensesModal
