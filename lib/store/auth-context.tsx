@@ -1,4 +1,5 @@
-import { createContext, ReactNode } from "react";
+"use client";
+import { createContext, ReactNode, useContext } from "react";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -17,7 +18,7 @@ type AuthContextType = {
   logout: () => void;
 };
 
-export const authContext = createContext<AuthContextType>({
+const authContext = createContext<AuthContextType>({
   user: null,
   loading: false,
   googleLoginHandler: async () => {},
@@ -65,3 +66,7 @@ export default function AuthContextProvider({
 
   return <authContext.Provider value={values}>{children}</authContext.Provider>;
 }
+
+export const useAuth = () => {
+  return useContext(authContext);
+};
