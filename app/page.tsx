@@ -4,12 +4,10 @@ import { currencyFormatter } from "@/lib/utils";
 import { useFinance } from "@/lib/store/finance-context";
 import { useAuth } from "@/lib/store/auth-context";
 import SignIn from "@/components/SignIn/SignIn";
-import AddIncomeModal from "@/components/modal/AddIncomeModal";
-import AddExpensesModal from "@/components/modal/AddExpensesModal";
-import ExpenseCategoryItem from "@/components/items/ExpenseCategoryItem";
-
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { AddExpensesModal, AddIncomeModal } from "@/components/modal";
+import ExpenseCategoryItem from "@/components/items/ExpenseCategoryItem";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function Home() {

@@ -15,12 +15,6 @@ export type ExpenseCategory = {
   total: number;
 };
 
-export type IncomeItem = {
-  id: string;
-  createdAt: Date;
-  amount: number;
-  description: string;
-};
 
 export type FinanceContextType = {
   income: IncomeItem[];
@@ -41,4 +35,23 @@ export type FinanceContextType = {
 
 export type FinanceContextProviderProps = {
   children: ReactNode;
+};
+
+export type IncomeItem = {
+  id: string;
+  amount: number;
+  description: string;
+  createdAt: Date;
+  uid?: string;
+};
+
+export type Expense = {
+  id: string;
+  title: string;
+  items: {
+    id: string;
+    createdAt: Date;
+    amount: number;
+  }[];
+  total: number;
 };

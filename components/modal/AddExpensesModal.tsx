@@ -7,12 +7,6 @@ import { useFinance } from "@/lib/store/finance-context";
 import { ExpenseCategory } from "@/types/finance.types";
 import { useAuth } from "@/lib/store/auth-context";
 
-type ExpenseItem = {
-  id: string;
-  amount: number;
-  createdAt: Date;
-};
-
 type AddExpensesModalProps = {
   show: boolean;
   onClose: () => void;

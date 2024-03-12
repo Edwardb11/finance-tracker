@@ -24,7 +24,6 @@ import {
   FinanceContextType,
   IncomeItem,
 } from "@/types/finance.types";
-import { color } from "chart.js/helpers";
 
 const financeContext = createContext<FinanceContextType>({
   income: [],

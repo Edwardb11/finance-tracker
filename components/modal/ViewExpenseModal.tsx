@@ -3,19 +3,9 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Modal from "./Modal";
 import { useFinance } from "@/lib/store/finance-context";
-import { ExpenseCategory } from "@/types/finance.types";
+import { Expense, ExpenseCategory } from "@/types/finance.types";
 import { useAuth } from "@/lib/store/auth-context";
 
-type Expense = {
-  id: string;
-  title: string;
-  items: {
-    id: string;
-    createdAt: Date;
-    amount: number;
-  }[];
-  total: number;
-};
 
 type ViewExpenseModalProps = {
   show: boolean;
