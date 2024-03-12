@@ -1,6 +1,7 @@
-"use client"
+"use client";
 import { useAuth } from "@/lib/store/auth-context";
 import { ImStatsBars } from "react-icons/im";
+import Image from "next/image";
 
 const Navbar: React.FC = () => {
   const { user, loading, logout } = useAuth();
@@ -11,11 +12,12 @@ const Navbar: React.FC = () => {
         {user && !loading && (
           <div className="flex items-center gap-2">
             <div className="h-[40px] w-[40px] rounded-full overflow-hidden">
-              <img
-                className="object-cover w-full h-full"
+              <Image
                 src={user.photoURL || ""}
-                alt={user.displayName || ""}
-                referrerPolicy="no-referrer"
+                alt={user.displayName || "User"}
+                width={40}
+                height={40}
+                className="object-cover"
               />
             </div>
             <small>Hi, {user.displayName}!</small>

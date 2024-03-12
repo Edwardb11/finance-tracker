@@ -1,6 +1,7 @@
 "use client";
 
 import SignIn from "@/components/SignIn/SignIn";
+import Navbar from "@/components/navbar/Navbar";
 import { useAuth } from "@/lib/store/auth-context";
 
 export default function Home() {
@@ -12,7 +13,9 @@ export default function Home() {
 
   return (
     <>
-      <main className="container max-w-2xl px-6 mx-auto">
+      <Navbar />
+
+      <main className="container max-w-2xl px-6 mx-auto bg-indigo-600">
         <section className="py-3">
           <small className="text-gray-400 text-md">My Balance</small>
         </section>
