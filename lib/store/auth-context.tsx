@@ -1,7 +1,12 @@
 "use client";
 import { createContext, ReactNode, useContext } from "react";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 type User = {
@@ -15,6 +20,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   googleLoginHandler: () => Promise<void>;
+  githubLoginHandler: () => Promise<void>;
   logout: () => void;
 };
 
@@ -22,6 +28,7 @@ const authContext = createContext<AuthContextType>({
   user: null,
   loading: false,
   googleLoginHandler: async () => {},
+  githubLoginHandler: async () => {},
   logout: () => {},
 });
 
@@ -35,10 +42,19 @@ export default function AuthContextProvider({
   const [user, loading] = useAuthState(auth);
 
   const googleProvider = new GoogleAuthProvider();
+  const githubProvider = new GithubAuthProvider();
 
   const googleLoginHandler = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const githubLoginHandler = async () => {
+    try {
+      await signInWithPopup(auth, githubProvider);
     } catch (error) {
       throw error;
     }
@@ -61,6 +77,7 @@ export default function AuthContextProvider({
     user: currentUser,
     loading,
     googleLoginHandler,
+    githubLoginHandler,
     logout,
   };
 

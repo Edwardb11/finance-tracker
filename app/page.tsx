@@ -15,7 +15,7 @@ export default function Home() {
     <>
       <Navbar />
 
-      <main className="container max-w-2xl px-6 mx-auto bg-indigo-600">
+      <main className="container max-w-2xl px-6 mx-auto">
         <section className="py-3">
           <small className="text-gray-400 text-md">My Balance</small>
         </section>
