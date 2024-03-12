@@ -4,19 +4,13 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import Modal from "./Modal";
 import { useFinance } from "@/lib/store/finance-context";
+import { ExpenseCategory } from "@/types/finance.types";
+import { useAuth } from "@/lib/store/auth-context";
 
 type ExpenseItem = {
   id: string;
   amount: number;
   createdAt: Date;
-};
-
-type ExpenseCategory = {
-  id: string;
-  color: string;
-  title: string;
-  total: number;
-  items: ExpenseItem[];
 };
 
 type AddExpensesModalProps = {
@@ -28,6 +22,7 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
   show,
   onClose,
 }) => {
+  const { user } = useAuth();
   const [expenseAmount, setExpenseAmount] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showAddExpense, setShowAddExpense] = useState<boolean>(false);
@@ -76,7 +71,16 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
     const color = colorRef.current.value;
 
     try {
-      await addCategory({ title, color, total: 0 });
+      const newCategory: ExpenseCategory = {
+        id: uuidv4(),
+        uid: user?.uid || "",
+        title,
+        color,
+        total: 0,
+        items: [],
+      };
+
+      await addCategory(newCategory);
       setShowAddExpense(false);
       toast.success("Category created!");
     } catch (error) {
@@ -101,7 +105,7 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
         />
       </div>
 
-      {expenseAmount > 0 && (
+      {parseFloat(expenseAmount) > 0 && (
         <div className="flex flex-col gap-4 mt-6">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl capitalize">Select expense category</h3>

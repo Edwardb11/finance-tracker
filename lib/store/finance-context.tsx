@@ -24,6 +24,7 @@ import {
   FinanceContextType,
   IncomeItem,
 } from "@/types/finance.types";
+import { color } from "chart.js/helpers";
 
 const financeContext = createContext<FinanceContextType>({
   income: [],
@@ -84,6 +85,7 @@ export default function FinanceContextProvider({
         title: doc.data().title,
         items: doc.data().items,
         total: doc.data().total,
+        color: doc.data().color,
       }));
 
       setExpenses(expensesData);
@@ -115,11 +117,11 @@ export default function FinanceContextProvider({
     newExpense: ExpenseCategory
   ) => {
     const docRef = doc(db, "expenses", expenseCategoryId);
-  
+
     try {
-      const { id, ...expenseWithoutId } = newExpense; 
-      await updateDoc(docRef, { ...expenseWithoutId }); 
-  
+      const { id, ...expenseWithoutId } = newExpense;
+      await updateDoc(docRef, { ...expenseWithoutId });
+
       setExpenses((prevState) =>
         prevState.map((expense) =>
           expense.id === expenseCategoryId ? newExpense : expense
@@ -129,7 +131,7 @@ export default function FinanceContextProvider({
       console.error("Error adding expense item:", error);
     }
   };
-  
+
   const deleteExpenseItem = async (
     updatedExpense: ExpenseCategory,
     expenseCategoryId: string

@@ -33,16 +33,21 @@ export default function Home() {
     return <SignIn />;
   }
 
+  const handleCloseIncome = () => {
+    setShowAddIncomeModal(false);
+  };
+
+  const handleCloseExpense = () => {
+    setShowAddExpenseModal(false);
+  };
+
   return (
     <>
-      <AddIncomeModal
-        show={showAddIncomeModal}
-        onClose={setShowAddIncomeModal}
-      />
+      <AddIncomeModal show={showAddIncomeModal} onClose={handleCloseIncome} />
 
       <AddExpensesModal
         show={showAddExpenseModal}
-        onClose={setShowAddExpenseModal}
+        onClose={handleCloseExpense}
       />
 
       <main className="container max-w-2xl px-6 mx-auto">

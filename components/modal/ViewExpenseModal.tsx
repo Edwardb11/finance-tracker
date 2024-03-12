@@ -3,6 +3,8 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Modal from "./Modal";
 import { useFinance } from "@/lib/store/finance-context";
+import { ExpenseCategory } from "@/types/finance.types";
+import { useAuth } from "@/lib/store/auth-context";
 
 type Expense = {
   id: string;
@@ -28,6 +30,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
 }) => {
   const { deleteExpenseItem, deleteExpenseCategory } = useFinance();
 
+  const { user } = useAuth();
   const deleteExpenseHandler = async () => {
     try {
       await deleteExpenseCategory(expense.id);
@@ -46,7 +49,11 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
     try {
       const updatedItems = expense.items.filter((i) => i.id !== item.id);
 
-      const updatedExpense = {
+      const updatedExpense: ExpenseCategory = {
+        id: expense.id,
+        uid: user?.uid || "",
+        title: "",
+        color: "",
         items: [...updatedItems],
         total: expense.total - item.amount,
       };

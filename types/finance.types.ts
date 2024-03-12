@@ -10,6 +10,7 @@ export type ExpenseCategory = {
   id: string;
   uid: string;
   title: string;
+  color: string;
   items: ExpenseItem[];
   total: number;
 };
