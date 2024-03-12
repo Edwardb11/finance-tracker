@@ -1,26 +1,31 @@
-"use client"
+"use client";
 import {
-    createContext,
-    useState,
-    useEffect,
-    ReactNode,
-  } from "react";
-  
-  import { db } from "@/lib/firebase";
-  import {
-    collection,
-    addDoc,
-    getDocs,
-    doc,
-    deleteDoc,
-    updateDoc,
-    query,
-    where,
-  } from "firebase/firestore";
-  import { useAuth } from "./auth-context";
-import { ExpenseCategory, FinanceContextType, IncomeItem } from "@/types/finance.types";
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useContext,
+} from "react";
 
-export const financeContext = createContext<FinanceContextType>({
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+  query,
+  where,
+} from "firebase/firestore";
+import { useAuth } from "./auth-context";
+import {
+  ExpenseCategory,
+  FinanceContextType,
+  IncomeItem,
+} from "@/types/finance.types";
+
+const financeContext = createContext<FinanceContextType>({
   income: [],
   expenses: [],
   addIncomeItem: async () => {},
@@ -42,6 +47,51 @@ export default function FinanceContextProvider({
   const [expenses, setExpenses] = useState<ExpenseCategory[]>([]);
 
   const { user } = useAuth();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchData = async () => {
+    try {
+      if (!user) return;
+
+      const incomeCollectionRef = collection(db, "income");
+      const incomeQuery = query(
+        incomeCollectionRef,
+        where("uid", "==", user.uid)
+      );
+
+      const incomeDocsSnap = await getDocs(incomeQuery);
+
+      const incomeData = incomeDocsSnap.docs.map((doc) => ({
+        id: doc.id,
+        amount: doc.data().amount,
+        description: doc.data().description,
+        createdAt: new Date(doc.data().createdAt.toMillis()),
+      }));
+
+      setIncome(incomeData);
+
+      const expensesCollectionRef = collection(db, "expenses");
+      const expensesQuery = query(
+        expensesCollectionRef,
+        where("uid", "==", user.uid)
+      );
+
+      const expensesDocsSnap = await getDocs(expensesQuery);
+
+      const expensesData = expensesDocsSnap.docs.map((doc) => ({
+        id: doc.id,
+        uid: doc.data().uid,
+        title: doc.data().title,
+        items: doc.data().items,
+        total: doc.data().total,
+      }));
+
+      setExpenses(expensesData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   const addCategory = async (category: ExpenseCategory) => {
     try {
       const collectionRef = collection(db, "expenses");
@@ -56,7 +106,7 @@ export default function FinanceContextProvider({
         { ...(user && { uid: user.uid }), ...category, items: [] },
       ]);
     } catch (error) {
-      throw error;
+      console.error("Error adding category:", error);
     }
   };
 
@@ -65,23 +115,21 @@ export default function FinanceContextProvider({
     newExpense: ExpenseCategory
   ) => {
     const docRef = doc(db, "expenses", expenseCategoryId);
-
+  
     try {
-      await updateDoc(docRef, { ...newExpense, id: undefined });
-
-      setExpenses((prevState) => {
-        const updatedExpenses = [...prevState];
-        const foundIndex = updatedExpenses.findIndex(
-          (expense) => expense.id === expenseCategoryId
-        );
-        updatedExpenses[foundIndex] = { ...newExpense };
-        return updatedExpenses;
-      });
+      const { id, ...expenseWithoutId } = newExpense; 
+      await updateDoc(docRef, { ...expenseWithoutId }); 
+  
+      setExpenses((prevState) =>
+        prevState.map((expense) =>
+          expense.id === expenseCategoryId ? newExpense : expense
+        )
+      );
     } catch (error) {
-      throw error;
+      console.error("Error adding expense item:", error);
     }
   };
-
+  
   const deleteExpenseItem = async (
     updatedExpense: ExpenseCategory,
     expenseCategoryId: string
@@ -90,17 +138,13 @@ export default function FinanceContextProvider({
       const docRef = doc(db, "expenses", expenseCategoryId);
       await updateDoc(docRef, { ...updatedExpense });
 
-      setExpenses((prevExpenses) => {
-        const updatedExpenses = [...prevExpenses];
-        const pos = updatedExpenses.findIndex(
-          (ex) => ex.id === expenseCategoryId
-        );
-        updatedExpenses[pos].items = [...updatedExpense.items];
-        updatedExpenses[pos].total = updatedExpense.total;
-        return updatedExpenses;
-      });
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((expense) =>
+          expense.id === expenseCategoryId ? updatedExpense : expense
+        )
+      );
     } catch (error) {
-      throw error;
+      console.error("Error deleting expense item:", error);
     }
   };
 
@@ -113,7 +157,7 @@ export default function FinanceContextProvider({
         prevExpenses.filter((expense) => expense.id !== expenseCategoryId)
       );
     } catch (error) {
-      throw error;
+      console.error("Error deleting expense category:", error);
     }
   };
 
@@ -128,9 +172,8 @@ export default function FinanceContextProvider({
         ...prevState,
         { id: docSnap.id, ...incomeWithoutId },
       ]);
-    } catch (error: any) {
-      console.log(error.message);
-      throw error;
+    } catch (error) {
+      console.error("Error adding income item:", error);
     }
   };
 
@@ -141,51 +184,14 @@ export default function FinanceContextProvider({
       await deleteDoc(docRef);
 
       setIncome((prevState) => prevState.filter((i) => i.id !== incomeId));
-    } catch (error: any) {
-      console.log(error.message);
-      throw error;
+    } catch (error) {
+      console.error("Error removing income item:", error);
     }
   };
 
   useEffect(() => {
-    if (!user) return;
-
-    const getIncomeData = async () => {
-      const collectionRef = collection(db, "income");
-      const q = query(collectionRef, where("uid", "==", user.uid));
-
-      const docsSnap = await getDocs(q);
-
-      const data = docsSnap.docs.map((doc) => ({
-        id: doc.id,
-        amount: doc.data().amount,
-        description: doc.data().description,
-        createdAt: new Date(doc.data().createdAt.toMillis()),
-      }));
-
-      setIncome(data);
-    };
-
-    const getExpensesData = async () => {
-      const collectionRef = collection(db, "expenses");
-      const q = query(collectionRef, where("uid", "==", user.uid));
-
-      const docsSnap = await getDocs(q);
-
-      const data = docsSnap.docs.map((doc) => ({
-        id: doc.id,
-        uid: doc.data().uid,
-        title: doc.data().title,
-        items: doc.data().items,
-        total: doc.data().total,
-      }));
-
-      setExpenses(data);
-    };
-
-    getIncomeData();
-    getExpensesData();
-  }, [user]);
+    fetchData();
+  }, [fetchData, user]);
 
   const contextValues: FinanceContextType = {
     income,
@@ -204,3 +210,7 @@ export default function FinanceContextProvider({
     </financeContext.Provider>
   );
 }
+
+export const useFinance = () => {
+  return useContext(financeContext);
+};
