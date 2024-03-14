@@ -1,10 +1,11 @@
-"use client";
+"use client"
 import {
   createContext,
   useState,
   useEffect,
   ReactNode,
   useContext,
+  useCallback
 } from "react";
 
 import { db } from "@/lib/firebase";
@@ -32,6 +33,7 @@ const financeContext = createContext<FinanceContextType>({
   removeIncomeItem: async () => {},
   addExpenseItem: async () => {},
   addCategory: async () => {},
+  editExpenseCategory: async () => {},
   deleteExpenseItem: async () => {},
   deleteExpenseCategory: async () => {},
 });
@@ -48,8 +50,7 @@ export default function FinanceContextProvider({
 
   const { user } = useAuth();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (!user) return;
 
@@ -91,7 +92,12 @@ export default function FinanceContextProvider({
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, [user]); 
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); 
+
 
   const addCategory = async (category: ExpenseCategory) => {
     try {
@@ -111,6 +117,21 @@ export default function FinanceContextProvider({
     }
   };
 
+  const editExpenseCategory = async (updatedCategory: ExpenseCategory) => {
+    try {
+      const docRef = doc(db, "expenses", updatedCategory.id);
+      await updateDoc(docRef, updatedCategory);
+  
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((expense) =>
+          expense.id === updatedCategory.id ? updatedCategory : expense
+        )
+      );
+    } catch (error) {
+      console.error("Error editing expense category:", error);
+    }
+  };
+  
   const addExpenseItem = async (
     expenseCategoryId: string,
     newExpense: ExpenseCategory
@@ -190,10 +211,6 @@ export default function FinanceContextProvider({
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData, user]);
-
   const contextValues: FinanceContextType = {
     income,
     expenses,
@@ -203,6 +220,7 @@ export default function FinanceContextProvider({
     addCategory,
     deleteExpenseItem,
     deleteExpenseCategory,
+    editExpenseCategory,
   };
 
   return (
