@@ -1,14 +1,17 @@
 "use client";
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import {
   GoogleAuthProvider,
   GithubAuthProvider,
   FacebookAuthProvider,
   signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
+  onAuthStateChanged,
+  User as FirebaseUser,
 } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
 
 type User = {
   uid: string;
@@ -23,15 +26,19 @@ type AuthContextType = {
   googleLoginHandler: () => Promise<void>;
   githubLoginHandler: () => Promise<void>;
   facebookLoginHandler: () => Promise<void>;
+  emailLoginHandler: (email: string, password: string) => Promise<void>;
+  emailRegisterHandler: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
 
 const authContext = createContext<AuthContextType>({
   user: null,
-  loading: false,
+  loading: true,
   googleLoginHandler: async () => {},
   githubLoginHandler: async () => {},
   facebookLoginHandler: async () => {},
+  emailLoginHandler: async () => {},
+  emailRegisterHandler: async () => {},
   logout: () => {},
 });
 
@@ -42,32 +49,54 @@ type AuthContextProviderProps = {
 export default function AuthContextProvider({
   children,
 }: AuthContextProviderProps) {
-  const [user, loading] = useAuthState(auth);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user: FirebaseUser | null) => {
+      if (user) {
+        setUser({
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || null,
+          photoURL: user.photoURL || null,
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
   const facebookProvider = new FacebookAuthProvider();
 
-  const googleLoginHandler = async () => {
+  const socialSignIn = async (provider: any) => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      await signInWithPopup(auth, provider);
     } catch (error) {
+      console.error('Error en inicio de sesión social:', error);
       throw error;
     }
   };
 
-  const githubLoginHandler = async () => {
+  const emailLoginHandler = async (email: string, password: string) => {
     try {
-      await signInWithPopup(auth, githubProvider);
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
+      console.error('Error en inicio de sesión con correo electrónico:', error);
       throw error;
     }
   };
 
-  const facebookLoginHandler = async () => {
+  const emailRegisterHandler = async (email: string, password: string) => {
     try {
-      await signInWithPopup(auth, facebookProvider);
+      await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
+      console.error('Error en registro con correo electrónico:', error);
       throw error;
     }
   };
@@ -76,21 +105,14 @@ export default function AuthContextProvider({
     signOut(auth);
   };
 
-  const currentUser: User | null = user
-    ? {
-        uid: user.uid,
-        email: user.email || "",
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-      }
-    : null;
-
   const values: AuthContextType = {
-    user: currentUser,
+    user,
     loading,
-    googleLoginHandler,
-    githubLoginHandler,
-    facebookLoginHandler,
+    googleLoginHandler: () => socialSignIn(googleProvider),
+    githubLoginHandler: () => socialSignIn(githubProvider),
+    facebookLoginHandler: () => socialSignIn(facebookProvider),
+    emailLoginHandler,
+    emailRegisterHandler,
     logout,
   };
 
