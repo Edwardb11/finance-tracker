@@ -1,5 +1,6 @@
 "use client";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { useRouter } from 'next/navigation'; 
 import { auth } from "@/lib/firebase";
 import {
   GoogleAuthProvider,
@@ -51,6 +52,7 @@ export default function AuthContextProvider({
 }: AuthContextProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user: FirebaseUser | null) => {
@@ -61,14 +63,17 @@ export default function AuthContextProvider({
           displayName: user.displayName || null,
           photoURL: user.photoURL || null,
         });
+        setLoading(false);
+        router.push('/'); 
       } else {
         setUser(null);
+        setLoading(false);
+        router.push('/auth/login'); 
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();

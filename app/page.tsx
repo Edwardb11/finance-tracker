@@ -1,9 +1,8 @@
-"use client";
-import { useState, useEffect } from "react";
+"use client"
+import { useState } from "react";
 import { currencyFormatter } from "@/lib/utils";
 import { useFinance } from "@/lib/store/finance-context";
-import { useAuth } from "@/lib/store/auth-context";
-import SignIn from "@/components/sign-in/SignIn";
+
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { AddExpensesModal, AddIncomeModal } from "@/components/modal";
@@ -18,19 +17,7 @@ export default function Home() {
   const [balance, setBalance] = useState<number>(0);
 
   const { expenses, income } = useFinance();
-  const { user } = useAuth();
 
-  useEffect(() => {
-    const newBalance: number =
-      income.reduce((total: number, i) => total + i.amount, 0) -
-      expenses.reduce((total: number, e) => total + e.total, 0);
-
-    setBalance(newBalance);
-  }, [expenses, income]);
-
-  if (!user) {
-    return <SignIn />;
-  }
 
   const handleCloseIncome = () => {
     setShowAddIncomeModal(false);
