@@ -4,6 +4,7 @@ import { auth } from "@/lib/firebase";
 import {
   GoogleAuthProvider,
   GithubAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup,
   signOut,
 } from "firebase/auth";
@@ -21,6 +22,7 @@ type AuthContextType = {
   loading: boolean;
   googleLoginHandler: () => Promise<void>;
   githubLoginHandler: () => Promise<void>;
+  facebookLoginHandler: () => Promise<void>;
   logout: () => void;
 };
 
@@ -29,6 +31,7 @@ const authContext = createContext<AuthContextType>({
   loading: false,
   googleLoginHandler: async () => {},
   githubLoginHandler: async () => {},
+  facebookLoginHandler: async () => {},
   logout: () => {},
 });
 
@@ -43,6 +46,7 @@ export default function AuthContextProvider({
 
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
+  const facebookProvider = new FacebookAuthProvider();
 
   const googleLoginHandler = async () => {
     try {
@@ -55,6 +59,14 @@ export default function AuthContextProvider({
   const githubLoginHandler = async () => {
     try {
       await signInWithPopup(auth, githubProvider);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const facebookLoginHandler = async () => {
+    try {
+      await signInWithPopup(auth, facebookProvider);
     } catch (error) {
       throw error;
     }
@@ -78,6 +90,7 @@ export default function AuthContextProvider({
     loading,
     googleLoginHandler,
     githubLoginHandler,
+    facebookLoginHandler,
     logout,
   };
 
