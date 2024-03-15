@@ -8,7 +8,7 @@ export type ExpenseItem = {
 
 export type ExpenseCategory = {
   id: string;
-  uid: string;
+  uid?: string;
   title: string;
   color: string;
   items: ExpenseItem[];
