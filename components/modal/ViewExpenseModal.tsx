@@ -37,6 +37,8 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
       color: editedColor,
     };
     editExpenseCategory(updatedCategory);
+    toast.success("Expense category updated successfully!")
+
     setEditing(false);
   };
 
