@@ -1,6 +1,12 @@
 "use client";
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { useRouter } from 'next/navigation'; 
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import {
   GoogleAuthProvider,
@@ -12,6 +18,7 @@ import {
   signOut,
   onAuthStateChanged,
   User as FirebaseUser,
+  updateProfile,
 } from "firebase/auth";
 
 type User = {
@@ -28,7 +35,11 @@ type AuthContextType = {
   githubLoginHandler: () => Promise<void>;
   facebookLoginHandler: () => Promise<void>;
   emailLoginHandler: (email: string, password: string) => Promise<void>;
-  emailRegisterHandler: (email: string, password: string) => Promise<void>;
+  emailRegisterHandler: (
+    email: string,
+    password: string,
+    username: string
+  ) => Promise<void>;
   logout: () => void;
 };
 
@@ -55,22 +66,25 @@ export default function AuthContextProvider({
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user: FirebaseUser | null) => {
-      if (user) {
-        setUser({
-          uid: user.uid,
-          email: user.email || '',
-          displayName: user.displayName || null,
-          photoURL: user.photoURL || null,
-        });
-        setLoading(false);
-        router.push('/'); 
-      } else {
-        setUser(null);
-        setLoading(false);
-        router.push('/auth/login'); 
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user: FirebaseUser | null) => {
+        if (user) {
+          setUser({
+            uid: user.uid,
+            email: user.email || "",
+            displayName: user.displayName || null,
+            photoURL: user.photoURL || null,
+          });
+          setLoading(false);
+          router.push("/");
+        } else {
+          setUser(null);
+          setLoading(false);
+          router.push("/auth/login");
+        }
       }
-    });
+    );
 
     return () => unsubscribe();
   }, [router]);
@@ -83,7 +97,7 @@ export default function AuthContextProvider({
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error('Error en inicio de sesión social:', error);
+      console.error("Error en inicio de sesión social:", error);
       throw error;
     }
   };
@@ -92,22 +106,31 @@ export default function AuthContextProvider({
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      console.error('Error en inicio de sesión con correo electrónico:', error);
+      console.error("Error en inicio de sesión con correo electrónico:", error);
       throw error;
     }
   };
 
-  const emailRegisterHandler = async (email: string, password: string) => {
+  const emailRegisterHandler = async (
+    email: string,
+    password: string,
+    username: string
+  ) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      const user = auth.currentUser;
+      if (user) {
+        await updateProfile(user, { displayName: username });
+      }
     } catch (error) {
-      console.error('Error en registro con correo electrónico:', error);
+      console.error("Error en registro con correo electrónico:", error);
       throw error;
     }
   };
 
   const logout = () => {
     signOut(auth);
+    router.push("/auth/login");
   };
 
   const values: AuthContextType = {

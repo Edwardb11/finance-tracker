@@ -5,9 +5,14 @@ import { useAuth } from "@/lib/store/auth-context";
 
 const SignUp: React.FC = () => {
   const { emailRegisterHandler } = useAuth();
-  const handleSignUpSubmit = async (email: string, password: string) => {
+
+  const handleSignUpSubmit = async (
+    email: string,
+    password: string,
+    username: string = ""
+  ) => {
     try {
-      await emailRegisterHandler(email, password);
+      await emailRegisterHandler(email, password, username);
       toast.success("Sign Up Successful!");
     } catch (error) {
       toast.error("Error signing up with email and password");

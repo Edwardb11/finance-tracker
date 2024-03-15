@@ -7,7 +7,7 @@ import CustomInput from "../input/CustomInput";
 
 interface AuthFormProps {
   title: string;
-  onSubmit: (email: string, password: string) => void;
+  onSubmit: (email: string, password: string, username?: string) => void;
   isLogin: boolean;
 }
 
@@ -16,12 +16,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, isLogin }) => {
     initialValues: {
       email: "",
       password: "",
+      username: "",
     },
-    validationSchema: validationSchema,
+    validationSchema: validationSchema(isLogin),
     validateOnBlur: true,
     validateOnChange: true,
     onSubmit: (values) => {
-      onSubmit(values.email, values.password);
+      const { email, password, username } = values;
+      onSubmit(email, password, username);
       formik.resetForm();
     },
   });
@@ -34,7 +36,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, isLogin }) => {
         </div>
         <div
           className="w-full bg-gray-200 my-3 m-8"
-          style={{ height: "1px" }}></div>
+          style={{ height: "1px" }}
+        ></div>
         <form onSubmit={formik.handleSubmit}>
           <div className="flex flex-col gap-4 px-0 py-4">
             <CustomInput
@@ -51,10 +54,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, isLogin }) => {
               name="password"
               placeholder="Password"
             />
+            {!isLogin && (
+              <CustomInput
+                formik={formik}
+                id="username"
+                type="text"
+                name="username"
+                placeholder="Username"
+              />
+            )}
             <div className="w-full flex flex-row">
               <button
                 className="bg-blue-500 hover:bg-blue-700 w-full text-white font-bold py-2 px-4 rounded"
-                type="submit">
+                type="submit"
+              >
                 {title}
               </button>
             </div>
