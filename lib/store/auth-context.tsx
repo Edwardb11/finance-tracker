@@ -76,18 +76,23 @@ export default function AuthContextProvider({
             displayName: user.displayName || null,
             photoURL: user.photoURL || null,
           });
-          setLoading(false);
-          router.push("/");
         } else {
           setUser(null);
-          setLoading(false);
-          router.push("/auth/login");
         }
+        setLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
+
+  useEffect(() => {
+    if (user !== null) {
+      router.push("/");
+    } else {
+      router.push("/auth/login");
+    }
+  }, [user, router]);
 
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
