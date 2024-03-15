@@ -8,13 +8,12 @@ export type ExpenseItem = {
 
 export type ExpenseCategory = {
   id: string;
-  uid: string;
+  uid?: string;
   title: string;
   color: string;
   items: ExpenseItem[];
   total: number;
 };
-
 
 export type FinanceContextType = {
   income: IncomeItem[];
@@ -31,6 +30,7 @@ export type FinanceContextType = {
     expenseCategoryId: string
   ) => Promise<void>;
   deleteExpenseCategory: (expenseCategoryId: string) => Promise<void>;
+  editExpenseCategory: (updatedCategory: ExpenseCategory) => Promise<void>;
 };
 
 export type FinanceContextProviderProps = {

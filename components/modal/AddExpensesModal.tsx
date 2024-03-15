@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { useState, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
@@ -18,10 +18,16 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
 }) => {
   const { user } = useAuth();
   const [expenseAmount, setExpenseAmount] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    null
+  );
   const [showAddExpense, setShowAddExpense] = useState<boolean>(false);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
+    null
+  );
 
-  const { expenses, addExpenseItem, addCategory } = useFinance();
+  const { expenses, addExpenseItem, addCategory, editExpenseCategory } =
+    useFinance();
   const titleRef = useRef<HTMLInputElement>(null);
   const colorRef = useRef<HTMLInputElement>(null);
 
@@ -83,6 +89,31 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
     }
   };
 
+  const editCategoryHandler = async () => {
+    if (!editingCategoryId || !titleRef.current || !colorRef.current) return;
+
+    const title = titleRef.current.value;
+    const color = colorRef.current.value;
+
+    try {
+      const updatedCategory: ExpenseCategory = {
+        id: editingCategoryId,
+        uid: user?.uid || "",
+        title,
+        color,
+        total: 0, 
+        items: [], 
+      };
+
+      await editExpenseCategory(updatedCategory);
+      setEditingCategoryId(null);
+      toast.success("Category updated!");
+    } catch (error) {
+      console.log(error);
+      toast.error("Error updating category");
+    }
+  };
+
   return (
     <Modal show={show} onClose={onClose}>
       <div className="flex flex-col gap-4">
@@ -107,7 +138,8 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
               onClick={() => {
                 setShowAddExpense(true);
               }}
-              className="text-lime-400">
+              className="text-lime-400"
+            >
               + New Category
             </button>
           </div>
@@ -120,14 +152,16 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
               <input type="color" className="w-24 h-10" ref={colorRef} />
               <button
                 onClick={addCategoryHandler}
-                className="btn btn-primary-outline">
+                className="btn btn-primary-outline"
+              >
                 Create
               </button>
               <button
                 onClick={() => {
                   setShowAddExpense(false);
                 }}
-                className="btn btn-danger">
+                className="btn btn-danger"
+              >
                 Cancel
               </button>
             </div>
@@ -138,13 +172,15 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
               key={expense.id}
               onClick={() => {
                 setSelectedCategory(expense.id);
-              }}>
+              }}
+            >
               <div
                 style={{
                   boxShadow:
                     expense.id === selectedCategory ? "1px 1px 4px" : "none",
                 }}
-                className="flex items-center justify-between px-4 py-4 bg-slate-700 rounded-3xl">
+                className="flex items-center justify-between px-4 py-4 bg-slate-700 rounded-3xl"
+              >
                 <div className="flex items-center gap-2">
                   <div
                     className="w-[25px] h-[25px] rounded-full"
@@ -154,6 +190,15 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
                   />
                   <h4 className="capitalize">{expense.title}</h4>
                 </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingCategoryId(expense.id);
+                  }}
+                  className="btn btn-primary"
+                >
+                  Edit
+                </button>
               </div>
             </button>
           ))}
@@ -162,8 +207,48 @@ const AddExpensesModal: React.FC<AddExpensesModalProps> = ({
 
       {parseFloat(expenseAmount) > 0 && selectedCategory && (
         <div className="mt-6">
-          <button className="btn btn-primary" onClick={addExpenseItemHandler}>
+          <button
+            className="btn btn-primary"
+            onClick={addExpenseItemHandler}
+          >
             Add Expense
+          </button>
+        </div>
+      )}
+
+      {editingCategoryId && (
+        <div className="flex items-center justify-between mt-6">
+          <input
+            type="text"
+            placeholder="Enter Title"
+            defaultValue={
+              expenses.find((expense) => expense.id === editingCategoryId)
+                ?.title || ""
+            }
+            ref={titleRef}
+          />
+
+          <label>Pick Color</label>
+          <input
+            type="color"
+            className="w-24 h-10"
+            defaultValue={
+              expenses.find((expense) => expense.id === editingCategoryId)
+                ?.color || "#ffffff"
+            }
+            ref={colorRef}
+          />
+          <button
+            onClick={editCategoryHandler}
+            className="btn btn-primary-outline"
+          >
+            Save
+          </button>
+          <button
+            onClick={() => setEditingCategoryId(null)}
+            className="btn btn-danger"
+          >
+            Cancel
           </button>
         </div>
       )}
