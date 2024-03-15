@@ -18,6 +18,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, isLogin }) => {
       password: "",
     },
     validationSchema: validationSchema,
+    validateOnBlur: true,
+    validateOnChange: true,
     onSubmit: (values) => {
       onSubmit(values.email, values.password);
       formik.resetForm();
@@ -39,11 +41,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, isLogin }) => {
               formik={formik}
               id="email"
               name="email"
+              type="email"
               placeholder="Email"
             />
             <CustomInput
               formik={formik}
               id="password"
+              type="password"
               name="password"
               placeholder="Password"
             />

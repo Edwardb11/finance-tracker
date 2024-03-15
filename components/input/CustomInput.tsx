@@ -1,20 +1,23 @@
+import React from "react";
 import { CustomInputProps } from "@/types/input";
 
-export const CustomInput: React.FC<CustomInputProps> = ({
+const CustomInput: React.FC<CustomInputProps> = ({
   formik,
   id,
   name,
   placeholder,
+  type,
 }) => (
   <div>
     <input
       id={id}
       name={name}
-      type="text"
+      type={type}
       placeholder={`${placeholder} *`}
       className="input input-bordered w-full text-black bg-white border border-gray-300 focus:border-blue-500"
       value={formik.values[name]}
       onChange={formik.handleChange}
+      onBlur={formik.handleBlur}
       required
     />
     {formik.touched[name] && formik.errors[name] && (
@@ -22,3 +25,5 @@ export const CustomInput: React.FC<CustomInputProps> = ({
     )}
   </div>
 );
+
+export default CustomInput;
