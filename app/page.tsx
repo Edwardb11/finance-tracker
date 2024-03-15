@@ -1,14 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { currencyFormatter } from "@/lib/utils";
 import { useFinance } from "@/lib/store/finance-context";
-import { useAuth } from "@/lib/store/auth-context";
-import SignIn from "@/components/SignIn/SignIn";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { AddExpensesModal, AddIncomeModal } from "@/components/modal";
 import ExpenseCategoryItem from "@/components/items/ExpenseCategoryItem";
 import Navbar from "@/components/navbar/Navbar";
+import { useAuth } from "@/lib/store/auth-context";
+import Login from "./auth/login/page";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function Home() {
@@ -16,10 +16,8 @@ export default function Home() {
   const [showAddExpenseModal, setShowAddExpenseModal] =
     useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0);
-
-  const { expenses, income } = useFinance();
   const { user } = useAuth();
-
+  const { expenses, income } = useFinance();
   useEffect(() => {
     const newBalance: number =
       income.reduce((total: number, i) => total + i.amount, 0) -
@@ -29,7 +27,7 @@ export default function Home() {
   }, [expenses, income]);
 
   if (!user) {
-    return <SignIn />;
+    return <Login />;
   }
 
   const handleCloseIncome = () => {
@@ -42,7 +40,7 @@ export default function Home() {
 
   return (
     <>
-    <Navbar/>
+      <Navbar />
       <AddIncomeModal show={showAddIncomeModal} onClose={handleCloseIncome} />
 
       <AddExpensesModal
