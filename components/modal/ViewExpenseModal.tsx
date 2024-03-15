@@ -37,7 +37,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
       color: editedColor,
     };
     editExpenseCategory(updatedCategory);
-    toast.success("Expense category updated successfully!")
+    toast.success("Expense category updated successfully!");
 
     setEditing(false);
   };
@@ -86,13 +86,14 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
     <Modal show={show} onClose={() => onClose(false)}>
       <div>
         {editing ? (
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-6">
             <input
               type="text"
               value={editedTitle}
               onChange={(e) => setEditedTitle(e.target.value)}
-              className="w-full border-b-2 border-gray-300 focus:outline-none focus:border-blue-500 px-2 py-1"
             />
+            <label>Pick Color</label>
+
             <input
               type="color"
               value={editedColor}
@@ -103,7 +104,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
               <button onClick={handleSave} className="btn btn-primary mr-2">
                 Save
               </button>
-              <button onClick={handleCancel} className="btn btn-secondary">
+              <button onClick={handleCancel} className="btn btn-danger">
                 Cancel
               </button>
             </div>
