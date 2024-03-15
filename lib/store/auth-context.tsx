@@ -128,8 +128,8 @@ export default function AuthContextProvider({
     }
   };
 
-  const logout = () => {
-    signOut(auth);
+  const logout = async () => {
+    await signOut(auth);
     router.push("/auth/login");
   };
 
