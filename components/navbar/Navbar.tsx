@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center gap-2">
             <div className="h-[40px] w-[40px] rounded-full overflow-hidden">
               <Image
-                src={user.photoURL || ""}
+                src={user.photoURL || "/user.png"}
                 alt={user.displayName || "User"}
                 width={40}
                 height={40}
