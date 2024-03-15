@@ -1,13 +1,22 @@
-"use client"
+"use client";
 import AuthForm from "@/components/auth/AuthForm";
 import { toast } from "react-toastify";
+import { useAuth } from "@/lib/store/auth-context";
 
 const SignUp: React.FC = () => {
-  const handleSignUpSubmit = (email: string, password: string) => {
-    toast.success("Sign Up Successful!");
+  const { emailRegisterHandler } = useAuth();
+  const handleSignUpSubmit = async (email: string, password: string) => {
+    try {
+      await emailRegisterHandler(email, password);
+      toast.success("Sign Up Successful!");
+    } catch (error) {
+      toast.error("Error signing up with email and password");
+    }
   };
 
-  return <AuthForm  title="Sign Up" onSubmit={handleSignUpSubmit}  isLogin={false} />;
+  return (
+    <AuthForm title="Sign Up" onSubmit={handleSignUpSubmit} isLogin={false} />
+  );
 };
 
 export default SignUp;

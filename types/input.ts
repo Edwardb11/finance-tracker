@@ -12,6 +12,7 @@ export interface CustomInputProps {
 interface formik {
   values: FormikValues;
   handleChange: FormikHandlers["handleChange"];
+  handleBlur: FormikHandlers["handleBlur"];
   touched: FormikValues;
   errors: FormikValues;
 }

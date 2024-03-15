@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import OAuth from "./OAuth";
 import Link from "next/link";
 import { validationSchema } from "./validation";
-import { CustomInput } from "../input/CustomInput";
+import CustomInput from "../input/CustomInput";
 
 interface AuthFormProps {
   title: string;
