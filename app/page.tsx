@@ -26,9 +26,9 @@ export default function Home() {
     setBalance(newBalance);
   }, [expenses, income]);
 
-  if (!user) {
-    return <Login />;
-  }
+  // if (!user) {
+  //   return <Login />;
+  // }
 
   const handleCloseIncome = () => {
     setShowAddIncomeModal(false);
